@@ -89,8 +89,8 @@ class Sphero(object):
     def set_power_notification(self):
         raise NotImplementedError
 
-    def sleep(self):
-        raise NotImplementedError
+    def sleep(self, wakeup=0, macro=0, orbbasic=0):
+        return self.write(request.Sleep(self.seq, wakeup, macro, orbbasic))
 
     def get_voltage_trip_points(self):
         raise NotImplementedError
@@ -124,8 +124,8 @@ class Sphero(object):
     def set_heading(self):
         raise NotImplementedError
 
-    def set_stabilization(self):
-        raise NotImplementedError
+    def set_stabilization(self, state):
+        return self.write(request.SetStabilization(self.seq, state))
 
     def set_rotation_rate(self):
         raise NotImplementedError

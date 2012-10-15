@@ -56,9 +56,15 @@ class Core(Request):
 class Ping(Core):
     cid = 0x01
 
+class Sleep(Core):
+    cid = 0x22
+
 
 class Sphero(Request):
     did = 0x02
+
+class SetStabilization(Sphero):
+    cid = 0x02
 
 class SetRGB(Sphero):
     cid = 0x20
