@@ -18,6 +18,11 @@ setup(
     url='http://github.com/faulkner/sphero',
     license=license,
     packages=find_packages(),
+    include_package_data=True,
+    zip_safe=False,
+    install_requires=[
+        'pyserial==2.6',
+    ],
     tests_require=['nose'],
     test_suite='nose.collector',
 )
