@@ -154,8 +154,9 @@ class Sphero(object):
     def configure_collision_detection(self):
         raise NotImplementedError
 
-    def set_back_led_output(self):
-        raise NotImplementedError
+    def set_back_led_output(self, value):
+        """value can be between 0x00 and 0xFF"""
+        return self.write(request.SetBackLEDOutput(self.seq, value))
 
     def roll(self):
         raise NotImplementedError
@@ -239,7 +240,17 @@ if __name__ == '__main__':
 
     # connected?  throw a rave!
     import random
-    for x in range(100):
+    for x in range(50):
         s.set_rgb(random.randrange(0, 255),
                   random.randrange(0, 255),
                   random.randrange(0, 255))
+
+    # handy for debugging calls
+    def raw(did, cid, *data):
+        req = request.Request(s.seq, *data)
+        req.did = did
+        req.cid = cid
+        res = s.write(req)
+        logging.debug('request: %s', repr(req.bytes))
+        logging.debug('response: %s', repr(res.data))
+        return res

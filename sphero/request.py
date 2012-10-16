@@ -69,5 +69,8 @@ class SetStabilization(Sphero):
 class SetRGB(Sphero):
     cid = 0x20
 
+class SetBackLEDOutput(Sphero):
+    cid = 0x21
+
 class GetRGB(Sphero):
     cid = 0x22
