@@ -7,17 +7,16 @@ class Request(object):
     SOP2 = 0xFF
     did = 0x00
     cid = 0x00
+    fmt = None
 
     def __init__(self, seq=0x00, *data):
         self.seq = seq
         self.data = data
+        if not self.fmt:
+            self.fmt = '%sB' % len(self.data)
 
     def __str__(self):
         return self.bytes
-
-    @property
-    def fmt(self):
-        return '%sB' % len(self.data)
 
     def checksum(self):
         body = self.packet_header() + self.packet_body()
@@ -65,6 +64,10 @@ class Sleep(Core):
 
 class Sphero(Request):
     did = 0x02
+
+class SetHeading(Sphero):
+    cid = 0x01
+    fmt = '!H'
 
 class SetStabilization(Sphero):
     cid = 0x02

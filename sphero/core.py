@@ -121,8 +121,9 @@ class Sphero(object):
 
     # SPHERO COMMANDS
 
-    def set_heading(self):
-        raise NotImplementedError
+    def set_heading(self, value):
+        """value can be between 0 and 359"""
+        return self.write(request.SetHeading(self.seq, value))
 
     def set_stabilization(self, state):
         return self.write(request.SetStabilization(self.seq, state))
@@ -246,10 +247,12 @@ if __name__ == '__main__':
                   random.randrange(0, 255))
 
     # handy for debugging calls
-    def raw(did, cid, *data):
+    def raw(did, cid, *data, **kwargs):
         req = request.Request(s.seq, *data)
         req.did = did
         req.cid = cid
+        if 'fmt' in kwargs:
+            req.fmt = kwargs['fmt']
         res = s.write(req)
         logging.debug('request: %s', repr(req.bytes))
         logging.debug('response: %s', repr(res.data))
