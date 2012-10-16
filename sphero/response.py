@@ -30,7 +30,7 @@ class Response(object):
 
     @property
     def body(self):
-        return struct.unpack(self.fmt, self.body)
+        return struct.unpack(self.fmt, self.data)
 
 
 class GetRGB(Response):
