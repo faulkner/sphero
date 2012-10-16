@@ -40,3 +40,10 @@ class GetRGB(Response):
         self.r = body[0]
         self.g = body[1]
         self.b = body[2]
+
+
+class GetBluetoothInfo(Response):
+    def __init__(self, header, body):
+        super(GetBluetoothInfo, self).__init__(header, body)
+        self.name = self.data.split('\x00', 1)[0]
+        self.bta = self.data[16:].split('\x00', 1)[0]

@@ -56,6 +56,9 @@ class Core(Request):
 class Ping(Core):
     cid = 0x01
 
+class GetBluetoothInfo(Core):
+    cid = 0x11
+
 class Sleep(Core):
     cid = 0x22
 

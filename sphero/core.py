@@ -75,7 +75,7 @@ class Sphero(object):
         raise NotImplementedError
 
     def get_bluetooth_info(self):
-        raise NotImplementedError
+        return self.write(request.GetBluetoothInfo(self.seq))
 
     def set_auto_reconnect(self):
         raise NotImplementedError
