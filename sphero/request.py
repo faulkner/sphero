@@ -1,3 +1,4 @@
+# coding: utf-8
 import struct
 import response
 
@@ -32,8 +33,7 @@ class Request(object):
 
     def packet_body(self):
         if not self.data:
-            return ''
-
+            return ''    
         return struct.pack(self.fmt, *self.data)
 
     @property
@@ -52,13 +52,15 @@ class Request(object):
 class Core(Request):
     did = 0x00
 
+
+
 class Ping(Core):
     cid = 0x01
 
 class GetVersion(Core):
     cid = 0x02
 
-class GetDeviceName(Core):
+class SetDeviceName(Core):
     cid = 0x10
 
 class GetBluetoothInfo(Core):
@@ -107,6 +109,8 @@ class PollPacketTimes(Core):
     cid = 0x51
 
 
+#Sphero Commands
+
 class Sphero(Request):
     did = 0x02
 
@@ -138,11 +142,23 @@ class SetChassisId(Sphero):
 class SelfLevel(Sphero):
     cid = 0x09
 
+class SetVDL(Sphero):
+    cid = 0x0A
+
 class SetDataStreaming(Sphero):
     cid = 0x11
 
 class ConfigureCollisionDetection(Sphero):
     cid = 0x12
+
+class Locator(Sphero):
+    cid = 0x13
+
+class SetAccelerometer(Sphero):
+    cid = 0x14
+
+class ReadLocator(Sphero):
+    cid=0x15
 
 class SetRGB(Sphero):
     cid = 0x20
@@ -154,6 +170,7 @@ class GetRGB(Sphero):
     cid = 0x22
 
 class Roll(Sphero):
+    fmt = '!BHB' #Speed, heading, state
     cid = 0x30
 
 class SetBoostWithTime(Sphero):
@@ -209,3 +226,6 @@ class RunOrbbasicProgram(Sphero):
 
 class AbortOrbbasicProgram(Sphero):
     cid = 0x63
+
+class AnswerInput(Sphero):
+    cid = 0x64

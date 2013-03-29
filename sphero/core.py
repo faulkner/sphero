@@ -1,3 +1,4 @@
+# coding: utf-8
 import serial
 import struct
 import logging
@@ -30,6 +31,7 @@ class Sphero(object):
         return glob.glob('/dev/tty.Sphero*')
 
     def connect(self, retry=100):
+        tries=retry
         logging.info('connecting to %s' % self.path)
         while True:
             try:
@@ -38,7 +40,7 @@ class Sphero(object):
             except serial.serialutil.SerialException:
                 logging.info('retrying')
                 if not retry:
-                    raise SpheroError('failed to connect after %d tries' % retry)
+                    raise SpheroError('failed to connect after %d tries' % (tries-retry))
                 retry -= 1
 
     def write(self, packet):
@@ -57,6 +59,11 @@ class Sphero(object):
         else:
             raise SpheroError('request failed (request: %s:%s, response: %s:%s)' % (header, repr(body), response.header, repr(response.body)))
 
+
+    def prep_str(self, s):
+        """ Helper method to take a string and give a array of "bytes" """
+        return [ord(c) for c in s]    
+
     # CORE COMMANDS
 
     def ping(self):
@@ -72,7 +79,15 @@ class Sphero(object):
         raise NotImplementedError
 
     def get_device_name(self):
-        raise NotImplementedError
+        # GET_DEVICE_NAME is not really part of the api, 
+        # it has changed to GET_BLUETOOTH_INFO.
+        # Which returns both name and Bluetooth mac address.
+        return self.get_bluetooth_info().name
+
+    def set_device_name(self, newname):
+        """ Sets internal device name. (not announced bluetooth name).
+        requires utf-8 encoded string. """
+        return self.write(request.SetDeviceName(self.seq, *self.prep_str(newname)))
 
     def get_bluetooth_info(self):
         return self.write(request.GetBluetoothInfo(self.seq))
@@ -128,8 +143,13 @@ class Sphero(object):
     def set_stabilization(self, state):
         return self.write(request.SetStabilization(self.seq, state))
 
-    def set_rotation_rate(self):
-        raise NotImplementedError
+    def set_rotation_rate(self, val):
+        """value ca be between 0x00 and 0xFF:
+            value is a multiplied with 0.784 degrees/s except for:
+            0   --> 1 degrees/s
+            255 --> jumps to 400 degrees/s
+        """
+        return self.write(request.SetRotationRate(self.seq, val))
 
     def set_application_configuration_block(self):
         raise NotImplementedError
@@ -159,8 +179,13 @@ class Sphero(object):
         """value can be between 0x00 and 0xFF"""
         return self.write(request.SetBackLEDOutput(self.seq, value))
 
-    def roll(self):
-        raise NotImplementedError
+    def roll(self, speed, heading, state=1):
+        """
+        speed can have value between 0x00 and 0xFF 
+        heading can have value between 0 and 359 
+        
+        """
+        return self.write(request.Roll(self.seq, speed, heading, state ))
 
     def set_boost_with_time(self):
         raise NotImplementedError
@@ -233,18 +258,39 @@ class Sphero(object):
     def erase_user_config(self):
         raise NotImplementedError
 
+    # Additional "higher-level" commands
+    
+    def stop(self):
+        return self.roll(0,0)
 
 if __name__ == '__main__':
+    import time
     logging.getLogger().setLevel(logging.DEBUG)
     s = Sphero()
     s.connect()
 
-    # connected?  throw a rave!
-    import random
-    for x in range(50):
-        s.set_rgb(random.randrange(0, 255),
-                  random.randrange(0, 255),
-                  random.randrange(0, 255))
+    #print ( s.set_device_name("Sphero-Salmon") )
+
+    print( """Bluetooth info: 
+        name: %s
+        bta: %s
+        """ 
+        % ( s.get_bluetooth_info().name, 
+            s.get_bluetooth_info().bta
+          ) 
+    )
+
+    s.set_rotation_rate(0x00)
+    s.set_heading(0)
+    time.sleep(1)
+    s.roll(0x80, 270)
+    time.sleep(2)
+    s.set_heading(45)
+    time.sleep(3)
+    s.stop()
+
+
+    
 
     # handy for debugging calls
     def raw(did, cid, *data, **kwargs):
