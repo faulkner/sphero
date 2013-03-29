@@ -1,3 +1,4 @@
+# coding: utf-8
 import serial
 import struct
 import logging
@@ -30,6 +31,7 @@ class Sphero(object):
         return glob.glob('/dev/tty.Sphero*')
 
     def connect(self, retry=100):
+        tries=retry
         logging.info('connecting to %s' % self.path)
         while True:
             try:
@@ -38,7 +40,7 @@ class Sphero(object):
             except serial.serialutil.SerialException:
                 logging.info('retrying')
                 if not retry:
-                    raise SpheroError('failed to connect after %d tries' % retry)
+                    raise SpheroError('failed to connect after %d tries' % tries-retry)
                 retry -= 1
 
     def write(self, packet):
@@ -57,6 +59,11 @@ class Sphero(object):
         else:
             raise SpheroError('request failed (request: %s:%s, response: %s:%s)' % (header, repr(body), response.header, repr(response.body)))
 
+
+    def prep_str(self, s):
+        """ Helper method to take a string and give a array of "bytes" """
+        return [ord(c) for c in s]    
+
     # CORE COMMANDS
 
     def ping(self):
@@ -72,7 +79,15 @@ class Sphero(object):
         raise NotImplementedError
 
     def get_device_name(self):
-        raise NotImplementedError
+        # GET_DEVICE_NAME is not really part of the api, 
+        # it has changed to GET_BLUETOOTH_INFO.
+        # Which returns both name and Bluetooth mac address.
+        return self.get_bluetooth_info().name
+
+    def set_device_name(self, newname):
+        """ Sets internal device name. (not announced bluetooth name).
+        requires utf-8 encoded string. """
+        return self.write(request.SetDeviceName(self.seq, *self.prep_str(newname)))
 
     def get_bluetooth_info(self):
         return self.write(request.GetBluetoothInfo(self.seq))
@@ -239,12 +254,19 @@ if __name__ == '__main__':
     s = Sphero()
     s.connect()
 
-    # connected?  throw a rave!
-    import random
-    for x in range(50):
-        s.set_rgb(random.randrange(0, 255),
-                  random.randrange(0, 255),
-                  random.randrange(0, 255))
+    print ( 
+        s.set_device_name("Sphero-Salmon")
+    )
+
+
+    print( """Bluetooth info: (CMD_GET_BT_NAME?): 
+        name: %s
+        bta: %s
+        """ 
+        % ( s.get_bluetooth_info().name, 
+            s.get_bluetooth_info().bta
+          ) 
+    )
 
     # handy for debugging calls
     def raw(did, cid, *data, **kwargs):

@@ -1,3 +1,4 @@
+# coding: utf-8
 import struct
 import response
 
@@ -32,8 +33,7 @@ class Request(object):
 
     def packet_body(self):
         if not self.data:
-            return ''
-
+            return ''    
         return struct.pack(self.fmt, *self.data)
 
     @property
@@ -52,13 +52,15 @@ class Request(object):
 class Core(Request):
     did = 0x00
 
+
+
 class Ping(Core):
     cid = 0x01
 
 class GetVersion(Core):
     cid = 0x02
 
-class GetDeviceName(Core):
+class SetDeviceName(Core):
     cid = 0x10
 
 class GetBluetoothInfo(Core):
@@ -106,6 +108,8 @@ class SetTimeValue(Core):
 class PollPacketTimes(Core):
     cid = 0x51
 
+
+#Sphero Commands
 
 class Sphero(Request):
     did = 0x02

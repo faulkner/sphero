@@ -10,7 +10,7 @@ with open('LICENSE') as f:
 
 setup(
     name='sphero',
-    version='0.0.0',
+    version='0.0.1',
     description='A python client for Sphero.',
     long_description=readme,
     author='Chris Faulkner',
