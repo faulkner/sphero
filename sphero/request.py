@@ -138,11 +138,23 @@ class SetChassisId(Sphero):
 class SelfLevel(Sphero):
     cid = 0x09
 
+class SetVDL(Sphero):
+    cid = 0x0A
+
 class SetDataStreaming(Sphero):
     cid = 0x11
 
 class ConfigureCollisionDetection(Sphero):
     cid = 0x12
+
+class Locator(Sphero):
+    cid = 0x13
+
+class SetAccelerometer(Sphero):
+    cid = 0x14
+
+class ReadLocator(Sphero):
+    cid=0x15
 
 class SetRGB(Sphero):
     cid = 0x20
@@ -209,3 +221,6 @@ class RunOrbbasicProgram(Sphero):
 
 class AbortOrbbasicProgram(Sphero):
     cid = 0x63
+
+class AnswerInput(Sphero):
+    cid = 0x64
