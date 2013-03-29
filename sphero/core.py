@@ -40,7 +40,7 @@ class Sphero(object):
             except serial.serialutil.SerialException:
                 logging.info('retrying')
                 if not retry:
-                    raise SpheroError('failed to connect after %d tries' % tries-retry)
+                    raise SpheroError('failed to connect after %d tries' % (tries-retry))
                 retry -= 1
 
     def write(self, packet):
@@ -143,8 +143,13 @@ class Sphero(object):
     def set_stabilization(self, state):
         return self.write(request.SetStabilization(self.seq, state))
 
-    def set_rotation_rate(self):
-        raise NotImplementedError
+    def set_rotation_rate(self, val):
+        """value ca be between 0x00 and 0xFF:
+            value is a multiplied with 0.784 degrees/s except for:
+            0   --> 1 degrees/s
+            255 --> jumps to 400 degrees/s
+        """
+        return self.write(request.SetRotationRate(self.seq, val))
 
     def set_application_configuration_block(self):
         raise NotImplementedError
@@ -174,8 +179,13 @@ class Sphero(object):
         """value can be between 0x00 and 0xFF"""
         return self.write(request.SetBackLEDOutput(self.seq, value))
 
-    def roll(self):
-        raise NotImplementedError
+    def roll(self, speed, heading, state=1):
+        """
+        speed can have value between 0x00 and 0xFF 
+        heading can have value between 0 and 359 
+        
+        """
+        return self.write(request.Roll(self.seq, speed, heading, state ))
 
     def set_boost_with_time(self):
         raise NotImplementedError
@@ -248,18 +258,20 @@ class Sphero(object):
     def erase_user_config(self):
         raise NotImplementedError
 
+    # Additional "higher-level" commands
+    
+    def stop(self):
+        return self.roll(0,0)
 
 if __name__ == '__main__':
+    import time
     logging.getLogger().setLevel(logging.DEBUG)
     s = Sphero()
     s.connect()
 
-    print ( 
-        s.set_device_name("Sphero-Salmon")
-    )
+    #print ( s.set_device_name("Sphero-Salmon") )
 
-
-    print( """Bluetooth info: (CMD_GET_BT_NAME?): 
+    print( """Bluetooth info: 
         name: %s
         bta: %s
         """ 
@@ -267,6 +279,18 @@ if __name__ == '__main__':
             s.get_bluetooth_info().bta
           ) 
     )
+
+    s.set_rotation_rate(0x00)
+    s.set_heading(0)
+    time.sleep(1)
+    s.roll(0x80, 270)
+    time.sleep(2)
+    s.set_heading(45)
+    time.sleep(3)
+    s.stop()
+
+
+    
 
     # handy for debugging calls
     def raw(did, cid, *data, **kwargs):

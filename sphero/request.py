@@ -170,6 +170,7 @@ class GetRGB(Sphero):
     cid = 0x22
 
 class Roll(Sphero):
+    fmt = '!BHB' #Speed, heading, state
     cid = 0x30
 
 class SetBoostWithTime(Sphero):
