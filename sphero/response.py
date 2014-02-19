@@ -35,12 +35,11 @@ class Response(object):
 
 
 class GetRGB(Response):
-    def __init__(self, header, body):
-        super(GetRGB, self).__init__(header, body)
-        # TODO: these values seem incorrect
-        self.r = body[0]
-        self.g = body[1]
-        self.b = body[2]
+    def __init__(self, header, data):
+        super(GetRGB, self).__init__(header, data)
+        self.r = self.body[0]
+        self.g = self.body[1]
+        self.b = self.body[2]
 
 
 class GetBluetoothInfo(Response):
